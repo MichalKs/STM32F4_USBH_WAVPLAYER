@@ -74,7 +74,6 @@
 									<listOptionValue builtIn="false" value="ARM_MATH_CM4"/>
 									<listOptionValue builtIn="false" value="USE_STDPERIPH_DRIVER"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
-									<listOptionValue builtIn="false" value="USE_FULL_ASSERT"/>
 									<listOptionValue builtIn="false" value="USE_USB_OTG_FS"/>
 									<listOptionValue builtIn="false" value="USE_STM324xG_EVAL"/>
 									<listOptionValue builtIn="false" value="MEDIA_USB_KEY"/>
@@ -105,7 +104,6 @@
 									<listOptionValue builtIn="false" value="ARM_MATH_CM4"/>
 									<listOptionValue builtIn="false" value="USE_STDPERIPH_DRIVER"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
-									<listOptionValue builtIn="false" value="USE_FULL_ASSERT"/>
 									<listOptionValue builtIn="false" value="USE_USB_OTG_FS"/>
 									<listOptionValue builtIn="false" value="USE_STM324xG_EVAL"/>
 									<listOptionValue builtIn="false" value="MEDIA_USB_KEY"/>
@@ -175,7 +173,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="fat_fs/src/diskio.c|fat_fs/src/option/syncobj.c|fat_fs/src/option/ccsbcs.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="app/main.c|fat_fs/src/option/syncobj.c|fat_fs/src/option/ccsbcs.c|fat_fs/src/diskio.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
