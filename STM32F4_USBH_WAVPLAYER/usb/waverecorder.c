@@ -24,6 +24,8 @@
 #include "pdm_filter.h"
 #include "waverecorder.h" 
 #include "ff.h"
+#include <usb_core.h>
+
 /** @addtogroup STM32F4-Discovery_Audio_Player_Recorder
 * @{
 */ 
@@ -547,7 +549,16 @@ static void WaveRecorder_NVIC_Init(void)
 * @param  line: assert_param error line source number
 * @retval None
 */
-
+void assert_failed(uint8_t* file, uint32_t line)
+{ 
+  /* User can add his own implementation to report the file name and line number,
+  ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  
+  /* Infinite loop */
+  while (1)
+  {
+  }
+}
 #endif
 
 /**
