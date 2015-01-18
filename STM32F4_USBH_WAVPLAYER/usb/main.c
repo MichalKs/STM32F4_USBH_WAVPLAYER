@@ -36,11 +36,13 @@
 RCC_ClocksTypeDef RCC_Clocks;
 __IO uint8_t RepeatState = 0;
 __IO uint16_t CCR_Val = 16826;
-extern __IO uint8_t LED_Toggle;
+extern __IO uint8_t LED_Toggle1;
 
 /* Private function prototypes -----------------------------------------------*/
 static void TIM_LED_Config(void);
 /* Private functions ---------------------------------------------------------*/
+
+#include <led.h>
 
 /**
   * @brief  Main program.
@@ -50,13 +52,13 @@ static void TIM_LED_Config(void);
 int main(void)
 { 
   /* Initialize LEDS */
-  STM_EVAL_LEDInit(LED3);
-  STM_EVAL_LEDInit(LED4);
-  STM_EVAL_LEDInit(LED5);
-  STM_EVAL_LEDInit(LED6);
+  LED_Init(LED0);
+  LED_Init(LED1);
+  LED_Init(LED2);
+  LED_Init(LED3);
  
   /* Green Led On: start of application */
-  STM_EVAL_LEDOn(LED4);
+  LED_ChangeState(LED0, LED_ON);
        
   /* SysTick end of count event each 10ms */
   RCC_GetClocksFreq(&RCC_Clocks);
@@ -67,7 +69,7 @@ int main(void)
   
   /* Initialize the repeat status */
   RepeatState = 0;
-  LED_Toggle = 7;
+  LED_Toggle1 = 7;
   
 #if defined MEDIA_IntFLASH
   
@@ -116,10 +118,6 @@ static void TIM_LED_Config(void)
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
 
-  /* Initialize Leds mounted on STM324F4-EVAL board */
-  STM_EVAL_LEDInit(LED3);
-  STM_EVAL_LEDInit(LED4);
-  STM_EVAL_LEDInit(LED6);
   
   /* Compute the prescaler value */
   prescalervalue = (uint16_t) ((SystemCoreClock ) / 550000) - 1;
@@ -150,27 +148,6 @@ static void TIM_LED_Config(void)
   /* TIM4 enable counter */
   TIM_Cmd(TIM4, ENABLE);
 }
-
-#ifdef  USE_FULL_ASSERT
-
-/**
-  * @brief  Reports the name of the source file and the source line number
-  *   where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
-void assert_failed(uint8_t* file, uint32_t line)
-{ 
-  /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-
-  /* Infinite loop */
-  while (1)
-  {
-  }
-}
-#endif
 
   
 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/

@@ -21,7 +21,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include <led.h>
 /** @addtogroup STM32F4-Discovery_Audio_Player_Recorder
 * @{
 */ 
@@ -68,7 +68,7 @@ uint8_t Buffer[6];
 __IO uint32_t WaveDataLength = 0;
 extern __IO uint8_t Count;
 extern __IO uint8_t RepeatState ;
-extern __IO uint8_t LED_Toggle;
+extern __IO uint8_t LED_Toggle1;
 extern __IO uint8_t PauseResumeStatus ;
 extern uint32_t AudioRemSize; 
 static __IO uint32_t TimingDelay;
@@ -119,7 +119,7 @@ void WavePlayBack(uint32_t AudioFreq)
   AudioFlashPlay((uint16_t*)(AUDIO_SAMPLE + AUIDO_START_ADDRESS),AUDIO_FILE_SZE,AUIDO_START_ADDRESS);
   
   /* LED Blue Start toggling */
-  LED_Toggle = 6;
+  LED_Toggle1 = 6;
   
   /* Infinite loop */
   while(1)
@@ -130,7 +130,7 @@ void WavePlayBack(uint32_t AudioFreq)
       if (PauseResumeStatus == 0)
       {
         /* LED Blue Stop Toggling */
-        LED_Toggle = 0;
+        LED_Toggle1 = 0;
         /* Pause playing */
         WavePlayerPauseResume(PauseResumeStatus);
         PauseResumeStatus = 2;
@@ -138,7 +138,7 @@ void WavePlayBack(uint32_t AudioFreq)
       else if (PauseResumeStatus == 1)
       {
         /* LED Blue Toggling */
-        LED_Toggle = 6;
+        LED_Toggle1 = 6;
         /* Resume playing */
         WavePlayerPauseResume(PauseResumeStatus);
         PauseResumeStatus = 2;
@@ -149,7 +149,7 @@ void WavePlayBack(uint32_t AudioFreq)
       /* Stop playing */
       WavePlayerStop();
       /* Green LED toggling */
-      LED_Toggle = 4;
+      LED_Toggle1 = 4;
     }
   }
   
@@ -167,7 +167,7 @@ void WavePlayBack(uint32_t AudioFreq)
   Audio_MAL_Play((uint32_t)buffer1, _MAX_SS);
   buffer_switch = 1;
   XferCplt = 0;
-  LED_Toggle = 6;
+  LED_Toggle1 = 6;
   PauseResumeStatus = 1;
   Count = 0;
  
@@ -182,13 +182,13 @@ void WavePlayBack(uint32_t AudioFreq)
         if (PauseResumeStatus == 0)
         {
           /* Pause Playing wave */
-          LED_Toggle = 0;
+          LED_Toggle1 = 0;
           WavePlayerPauseResume(PauseResumeStatus);
           PauseResumeStatus = 2;
         }
         else if (PauseResumeStatus == 1)
         {
-          LED_Toggle = 6;
+          LED_Toggle1 = 6;
           /* Resume Playing wave */
           WavePlayerPauseResume(PauseResumeStatus);
           PauseResumeStatus = 2;
@@ -225,9 +225,9 @@ void WavePlayBack(uint32_t AudioFreq)
   RepeatState = 1;
   WavePlayerStop();
   if (Command_index == 0)
-    LED_Toggle = 4;
+    LED_Toggle1 = 4;
 #else 
-  LED_Toggle = 7;
+  LED_Toggle1 = 7;
   RepeatState = 0;
   AudioPlayStart = 0;
   WavePlayerStop();
@@ -339,7 +339,7 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size)
 #if defined MEDIA_IntFLASH
 
 #if defined PLAY_REPEAT_OFF
-  LED_Toggle = 4;
+  LED_Toggle1 = 4;
   RepeatState = 1;
   EVAL_AUDIO_Stop(CODEC_PDWN_HW);
 #else
@@ -463,7 +463,7 @@ void WavePlayerStart(void)
   {
     while(1)
     {
-      STM_EVAL_LEDToggle(LED5);
+      LED_Toggle(LED2);
       Delay(10);
     }    
   }
@@ -480,7 +480,7 @@ void WavePlayerStart(void)
     /* Open the wave file to be played */
     if (f_open(&fileR, WaveFileName , FA_READ) != FR_OK)
     {
-      STM_EVAL_LEDOn(LED5);
+      LED_ChangeState(LED0, LED_ON);
       Command_index = 1;
     }
     else
@@ -500,7 +500,7 @@ void WavePlayerStart(void)
         /* Led Red Toggles in infinite loop */
         while(1)
         {
-          STM_EVAL_LEDToggle(LED5);
+          LED_Toggle(LED2);
           Delay(10);
         }
       }
@@ -520,7 +520,7 @@ void WavePlayer_CallBack(void)
   /* Reset the wave player variables */
   RepeatState = 0;
   AudioPlayStart =0;
-  LED_Toggle = 7;
+  LED_Toggle1 = 7;
   PauseResumeStatus = 1;
   WaveDataLength =0;
   Count = 0;
@@ -528,9 +528,10 @@ void WavePlayer_CallBack(void)
   /* Stops the codec */
   EVAL_AUDIO_Stop(CODEC_PDWN_HW);
   /* LED off */
-  STM_EVAL_LEDOff(LED3);
-  STM_EVAL_LEDOff(LED4);
-  STM_EVAL_LEDOff(LED6);
+  LED_ChangeState(LED0, LED_OFF);
+  LED_ChangeState(LED1, LED_OFF);
+  LED_ChangeState(LED3, LED_OFF);
+
   
   /* TIM Interrupts disable */
   TIM_ITConfig(TIM4, TIM_IT_CC1, DISABLE);

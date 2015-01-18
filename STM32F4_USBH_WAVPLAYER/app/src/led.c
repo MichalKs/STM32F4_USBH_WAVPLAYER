@@ -94,25 +94,25 @@ void LED_ChangeState(LED_Number_TypeDef led, LED_State_TypeDef state) {
  * @brief Toggle an LED.
  * @param led LED number.
  */
-//void LED_Toggle(LED_Number_TypeDef led) {
-//
-//  if (led >= MAX_LEDS) {
-//    println("Error: Incorrect LED number %d!", (int)led);
-//    return;
-//  }
-//
-//  if (ledState[led] == LED_UNUSED) {
-//    println("Error: Uninitialized LED %d!", (int)led);
-//    return;
-//  } else {
-//    if (ledState[led] == LED_OFF) {
-//      ledState[led] = LED_ON;
-//    } else if (ledState[led] == LED_ON) {
-//      ledState[led]= LED_OFF;
-//    }
-//    LED_HAL_Toggle(led);
-//  }
-//}
+void LED_Toggle(LED_Number_TypeDef led) {
+
+  if (led >= MAX_LEDS) {
+    println("Error: Incorrect LED number %d!", (int)led);
+    return;
+  }
+
+  if (ledState[led] == LED_UNUSED) {
+    println("Error: Uninitialized LED %d!", (int)led);
+    return;
+  } else {
+    if (ledState[led] == LED_OFF) {
+      ledState[led] = LED_ON;
+    } else if (ledState[led] == LED_ON) {
+      ledState[led]= LED_OFF;
+    }
+    LED_HAL_Toggle(led);
+  }
+}
 
 /**
  * @}

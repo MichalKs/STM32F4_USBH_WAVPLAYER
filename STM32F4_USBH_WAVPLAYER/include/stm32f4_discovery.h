@@ -46,13 +46,7 @@
 /** @defgroup STM32F4_DISCOVERY_LOW_LEVEL_Exported_Types
   * @{
   */
-typedef enum 
-{
-  LED4 = 0,
-  LED3 = 1,
-  LED5 = 2,
-  LED6 = 3
-} Led_TypeDef;
+
 
 typedef enum 
 {  
@@ -75,23 +69,6 @@ typedef enum
 /** @addtogroup STM32F4_DISCOVERY_LOW_LEVEL_LED
   * @{
   */
-#define LEDn                             4
-
-#define LED4_PIN                         GPIO_Pin_12
-#define LED4_GPIO_PORT                   GPIOD
-#define LED4_GPIO_CLK                    RCC_AHB1Periph_GPIOD  
-  
-#define LED3_PIN                         GPIO_Pin_13
-#define LED3_GPIO_PORT                   GPIOD
-#define LED3_GPIO_CLK                    RCC_AHB1Periph_GPIOD  
-  
-#define LED5_PIN                         GPIO_Pin_14
-#define LED5_GPIO_PORT                   GPIOD
-#define LED5_GPIO_CLK                    RCC_AHB1Periph_GPIOD  
-  
-#define LED6_PIN                         GPIO_Pin_15
-#define LED6_GPIO_PORT                   GPIOD
-#define LED6_GPIO_CLK                    RCC_AHB1Periph_GPIOD
 /**
   * @}
   */ 
@@ -126,10 +103,6 @@ typedef enum
 /** @defgroup STM32F4_DISCOVERY_LOW_LEVEL_Exported_Functions
   * @{
   */
-void STM_EVAL_LEDInit(Led_TypeDef Led);
-void STM_EVAL_LEDOn(Led_TypeDef Led);
-void STM_EVAL_LEDOff(Led_TypeDef Led);
-void STM_EVAL_LEDToggle(Led_TypeDef Led);
 void STM_EVAL_PBInit(Button_TypeDef Button, ButtonMode_TypeDef Button_Mode);
 uint32_t STM_EVAL_PBGetState(Button_TypeDef Button);
 /**

@@ -25,6 +25,7 @@
 #include "waverecorder.h" 
 #include "ff.h"
 #include <usb_core.h>
+#include <led.h>
 
 /** @addtogroup STM32F4-Discovery_Audio_Player_Recorder
 * @{
@@ -63,7 +64,7 @@ extern __IO uint8_t Command_index;
 extern USB_OTG_CORE_HANDLE  USB_OTG_Core;
 extern __IO uint32_t WaveCounter;
 extern FIL file;
-extern __IO uint8_t LED_Toggle;
+extern __IO uint8_t LED_Toggle1;
 uint16_t RAM_Buf[RAM_BUFFER_SIZE];
 uint16_t RAM_Buf1 [RAM_BUFFER_SIZE];
 uint16_t buf_idx = 0, buf_idx1 =0;
@@ -332,7 +333,7 @@ void WaveRecorderUpdate(void)
 {     
   WaveRecorderInit(32000,16, 1);
   WaveCounter = 0;
-  LED_Toggle = 7;
+  LED_Toggle1 = 7;
   
   /* Remove Wave file if exist on flash disk */
   f_unlink (REC_WAVE_NAME);
@@ -343,7 +344,7 @@ void WaveRecorderUpdate(void)
     /* Set ON Red LED */ 
     while(1)
     {
-      STM_EVAL_LEDToggle(LED5); 
+      LED_Toggle(LED2);
     }
   }
   else
@@ -393,7 +394,7 @@ void WaveRecorderUpdate(void)
       
       for (counter=0; counter<16; counter++)
       {
-        LED_Toggle = 3;
+        LED_Toggle1 = 3;
         if (buf_idx< RAM_BUFFER_SIZE)
         {
           /* Store Data in RAM buffer */
@@ -424,14 +425,14 @@ void WaveRecorderUpdate(void)
         /* Stop recording */
         WaveRecorderStop();  
         Command_index = 0;
-        LED_Toggle = 6;
+        LED_Toggle1 = 6;
         break;
       }
     }
     else /* End of Recording time  */
     {
       WaveRecorderStop();
-      LED_Toggle = 4;
+      LED_Toggle1 = 4;
       Command_index = 2;
       Data_Status =0;
       break;

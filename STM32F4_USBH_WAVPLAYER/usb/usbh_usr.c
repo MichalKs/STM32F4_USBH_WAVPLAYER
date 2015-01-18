@@ -22,6 +22,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usbh_usr.h"
 #include "stm32f4xx_it.h"
+#include <led.h>
 
 /** @addtogroup STM32F4-Discovery_Audio_Player_Recorder
   * @{
@@ -68,7 +69,7 @@ extern __IO uint8_t AudioPlayStart ;
 uint8_t joystick_use = 0x00;
 uint8_t lcdLineNo = 0x00;
 extern __IO uint8_t RepeatState ;
-extern __IO uint8_t LED_Toggle;
+extern __IO uint8_t LED_Toggle1;
 static uint8_t USBH_USR_ApplicationState = USH_USR_FS_INIT;
 extern __IO uint32_t WaveDataLength ;
 extern __IO uint16_t Time_Rec_Base;
@@ -95,11 +96,11 @@ void USBH_USR_DeviceAttached(void)
 {
   RepeatState = 0;
   
-  LED_Toggle = 7;
+  LED_Toggle1 = 7;
   /* Red LED off when device attached */
-  STM_EVAL_LEDOff(LED5);
+  LED_ChangeState(LED2, LED_OFF);
   /* Green LED on */
-  STM_EVAL_LEDOn(LED4);
+  LED_ChangeState(LED0, LED_ON);
   /* TIM Interrupts enable */
   TIM_ITConfig(TIM4, TIM_IT_CC1, ENABLE);
 }
@@ -122,7 +123,7 @@ void USBH_USR_UnrecoveredError (void)
 void USBH_USR_DeviceDisconnected (void)
 {
   /* Red Led on if the USB Key is removed */
-  STM_EVAL_LEDOn(LED5);
+  LED_ChangeState(LED2, LED_ON);
   /* Disable the Timer */
   TIM_ITConfig(TIM4, TIM_IT_CC1 , DISABLE);
 
@@ -137,10 +138,10 @@ void USBH_USR_DeviceDisconnected (void)
   if(Command_index == 1)
   {
     WaveRecorderStop();
-    STM_EVAL_LEDOff(LED3);
+    LED_ChangeState(LED1, LED_OFF);
     Command_index = 1;
     Time_Rec_Base = 0;
-    LED_Toggle = 7;
+    LED_Toggle1 = 7;
   }
 }
 
@@ -300,7 +301,8 @@ int USBH_USR_MSC_Application(void)
         while(1)
         {
           /* Red LED On */
-          STM_EVAL_LEDOn(LED5);
+          LED_ChangeState(LED2, LED_ON);
+
         }
       }
       /* Go to menu */

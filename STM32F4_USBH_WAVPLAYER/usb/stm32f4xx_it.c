@@ -23,7 +23,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include <led.h>
 
 /** @addtogroup STM32F4-Discovery_Audio_Player_Recorder
   * @{
@@ -33,7 +33,7 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-__IO uint8_t PauseResumeStatus = 2, Count = 0, LED_Toggle = 0;
+__IO uint8_t PauseResumeStatus = 2, Count = 0, LED_Toggle1 = 0;
 uint16_t capture = 0;
 extern __IO uint16_t CCR_Val;
 extern __IO uint8_t RepeatState, AudioPlayStart;
@@ -212,39 +212,39 @@ void TIM4_IRQHandler(void)
   if (TIM_GetITStatus(TIM4, TIM_IT_CC1) != RESET)
   {
     TIM_ClearITPendingBit(TIM4, TIM_IT_CC1);
-    if( LED_Toggle == 3)
+    if( LED_Toggle1 == 3)
     {
       /* LED3 Orange toggling */
-      STM_EVAL_LEDToggle(LED3);
-      STM_EVAL_LEDOff(LED6);
-      STM_EVAL_LEDOff(LED4);
+      LED_Toggle(LED1);
+      LED_HAL_ChangeState(LED3, LED_OFF);
+      LED_HAL_ChangeState(LED0, LED_OFF);
     }
-    else if( LED_Toggle == 4)
+    else if( LED_Toggle1 == 4)
     {
       /* LED4 Green toggling */
-      STM_EVAL_LEDToggle(LED4);
-      STM_EVAL_LEDOff(LED6);
-      STM_EVAL_LEDOff(LED3);
+      LED_Toggle(LED0);
+      LED_HAL_ChangeState(LED3, LED_OFF);
+      LED_HAL_ChangeState(LED1, LED_OFF);
     }
-    else if( LED_Toggle == 6)
+    else if( LED_Toggle1 == 6)
     {
       /* LED6 Blue toggling */
-      STM_EVAL_LEDOff(LED3);
-      STM_EVAL_LEDOff(LED4);
-      STM_EVAL_LEDToggle(LED6);
+      LED_HAL_ChangeState(LED1, LED_OFF);
+      LED_HAL_ChangeState(LED0, LED_OFF);
+      LED_Toggle(LED3);
     }
-    else if (LED_Toggle ==0)
+    else if (LED_Toggle1 ==0)
     {
       /* LED6 Blue On to signal Pause */
-      STM_EVAL_LEDOn(LED6);
+      LED_HAL_ChangeState(LED3, LED_ON);
     }
-    else if (LED_Toggle == 7)
+    else if (LED_Toggle1 == 7)
     {
       /* LED4 toggling with frequency = 439.4 Hz */
-      STM_EVAL_LEDOff(LED3);
-      STM_EVAL_LEDOff(LED4);
-      STM_EVAL_LEDOff(LED5);
-      STM_EVAL_LEDOff(LED6);
+      LED_HAL_ChangeState(LED0, LED_OFF);
+      LED_HAL_ChangeState(LED1, LED_OFF);
+      LED_HAL_ChangeState(LED2, LED_OFF);
+      LED_HAL_ChangeState(LED3, LED_OFF);
     }
     capture = TIM_GetCapture1(TIM4);
     TIM_SetCompare1(TIM4, capture + CCR_Val);
