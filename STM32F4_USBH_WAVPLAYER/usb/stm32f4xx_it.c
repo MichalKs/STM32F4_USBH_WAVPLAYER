@@ -22,8 +22,12 @@
   */ 
 
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
 #include <led.h>
+#include <usb_core.h>
+#include <usbh_core.h>
+#include <ff.h>
+#include "stm32f4_discovery_lis302dl.h"
+#include "stm32f4_discovery_audio_codec.h"
 
 /** @addtogroup STM32F4-Discovery_Audio_Player_Recorder
   * @{
@@ -49,124 +53,6 @@ __IO uint16_t Time_Rec_Base = 0;
  extern __IO uint8_t Command_index;
 #endif /* MEDIA_USB_KEY */
 
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
-
-/******************************************************************************/
-/*            Cortex-M4 Processor Exceptions Handlers                         */
-/******************************************************************************/
-
-/**
-  * @brief   This function handles NMI exception.
-  * @param  None
-  * @retval None
-  */
-void NMI_Handler(void)
-{
-}
-
-/**
-  * @brief  This function handles Hard Fault exception.
-  * @param  None
-  * @retval None
-  */
-void HardFault_Handler(void)
-{
-  /* Go to infinite loop when Hard Fault exception occurs */
-  while (1)
-  {
-  }
-}
-
-/**
-  * @brief  This function handles Memory Manage exception.
-  * @param  None
-  * @retval None
-  */
-void MemManage_Handler(void)
-{
-  /* Go to infinite loop when Memory Manage exception occurs */
-  while (1)
-  {
-  }
-}
-
-/**
-  * @brief  This function handles Bus Fault exception.
-  * @param  None
-  * @retval None
-  */
-void BusFault_Handler(void)
-{
-  /* Go to infinite loop when Bus Fault exception occurs */
-  while (1)
-  {
-  }
-}
-
-/**
-  * @brief  This function handles Usage Fault exception.
-  * @param  None
-  * @retval None
-  */
-void UsageFault_Handler(void)
-{
-  /* Go to infinite loop when Usage Fault exception occurs */
-  while (1)
-  {
-  }
-}
-
-/**
-  * @brief  This function handles SVCall exception.
-  * @param  None
-  * @retval None
-  */
-void SVC_Handler(void)
-{
-}
-
-/**
-  * @brief  This function handles Debug Monitor exception.
-  * @param  None
-  * @retval None
-  */
-void DebugMon_Handler(void)
-{
-}
-
-/**
-  * @brief  This function handles PendSVC exception.
-  * @param  None
-  * @retval None
-  */
-void PendSV_Handler(void)
-{
-}
-
-/**
-  * @brief  This function handles SysTick Handler.
-  * @param  None
-  * @retval None
-  */
-void SysTick_Handler(void)
-{
-  TimingDelay_Decrement();
-#if defined MEDIA_USB_KEY
-  if ( Command_index == 1)
-  {
-    Time_Rec_Base ++;
-  }
-#endif
-}
-
-
-/******************************************************************************/
-/*                 STM32F4xx Peripherals Interrupt Handlers                   */
-/*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */
-/*  available peripheral interrupt handler's name please refer to the startup */
-/*  file (startup_stm32f4xx.s).                                               */
-/******************************************************************************/
 /**
   * @brief  This function handles External line 1 interrupt request.
   * @param  None
@@ -216,35 +102,35 @@ void TIM4_IRQHandler(void)
     {
       /* LED3 Orange toggling */
       LED_Toggle(LED1);
-      LED_HAL_ChangeState(LED3, LED_OFF);
-      LED_HAL_ChangeState(LED0, LED_OFF);
+      LED_ChangeState(LED3, LED_OFF);
+      LED_ChangeState(LED0, LED_OFF);
     }
     else if( LED_Toggle1 == 4)
     {
       /* LED4 Green toggling */
       LED_Toggle(LED0);
-      LED_HAL_ChangeState(LED3, LED_OFF);
-      LED_HAL_ChangeState(LED1, LED_OFF);
+      LED_ChangeState(LED3, LED_OFF);
+      LED_ChangeState(LED1, LED_OFF);
     }
     else if( LED_Toggle1 == 6)
     {
       /* LED6 Blue toggling */
-      LED_HAL_ChangeState(LED1, LED_OFF);
-      LED_HAL_ChangeState(LED0, LED_OFF);
+      LED_ChangeState(LED1, LED_OFF);
+      LED_ChangeState(LED0, LED_OFF);
       LED_Toggle(LED3);
     }
     else if (LED_Toggle1 ==0)
     {
       /* LED6 Blue On to signal Pause */
-      LED_HAL_ChangeState(LED3, LED_ON);
+      LED_ChangeState(LED3, LED_ON);
     }
     else if (LED_Toggle1 == 7)
     {
       /* LED4 toggling with frequency = 439.4 Hz */
-      LED_HAL_ChangeState(LED0, LED_OFF);
-      LED_HAL_ChangeState(LED1, LED_OFF);
-      LED_HAL_ChangeState(LED2, LED_OFF);
-      LED_HAL_ChangeState(LED3, LED_OFF);
+      LED_ChangeState(LED0, LED_OFF);
+      LED_ChangeState(LED1, LED_OFF);
+      LED_ChangeState(LED2, LED_OFF);
+      LED_ChangeState(LED3, LED_OFF);
     }
     capture = TIM_GetCapture1(TIM4);
     TIM_SetCompare1(TIM4, capture + CCR_Val);
@@ -309,15 +195,6 @@ void OTG_FS_IRQHandler(void)
   USBH_OTG_ISR_Handler(&USB_OTG_Core);
 }
 #endif /* MEDIA_USB_KEY */
-
-/**
-  * @brief  This function handles PPP interrupt request.
-  * @param  None
-  * @retval None
-  */
-/*void PPP_IRQHandler(void)
-{
-}*/
 
 
 /**

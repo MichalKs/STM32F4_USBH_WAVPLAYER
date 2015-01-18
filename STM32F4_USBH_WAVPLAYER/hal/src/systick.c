@@ -51,14 +51,23 @@ uint32_t SYSTICK_GetTime(void) {
   return sysTicks;
 }
 
+extern __IO uint8_t Command_index;
+extern __IO uint16_t Time_Rec_Base;
 /**
  * @brief Interrupt handler for SysTick.
  */
-//void SysTick_Handler(void) {
-//
-//  sysTicks++; // Update system time
-//
-//}
+void SysTick_Handler(void) {
+
+#if defined MEDIA_USB_KEY
+  if ( Command_index == 1)
+  {
+      Time_Rec_Base ++;
+  }
+#endif
+
+  sysTicks++; // Update system time
+
+}
 
 /**
  * @}

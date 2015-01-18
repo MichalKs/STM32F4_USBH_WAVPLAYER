@@ -20,7 +20,6 @@
   */ 
 
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
 #include "pdm_filter.h"
 #include "waverecorder.h" 
 #include "ff.h"
@@ -31,6 +30,9 @@
 * @{
 */ 
 
+#define TIME_REC                30000 /* Recording time in millisecond(Systick Time Base*TIME_REC= 10ms*3000)
+                                         (default: 30s) */
+  #define REC_WAVE_NAME "0:rec.wav"
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* SPI Configuration defines */
@@ -56,6 +58,10 @@
 
 /* PCM buffer output size */
 #define PCM_OUT_SIZE            16
+
+
+  #define RAM_BUFFER_SIZE         1500  /* 3Kbytes (1500 x 16 bit) as a RAM buffer size.
+                                           More the size is higher, the recorded quality is better */
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -457,7 +463,7 @@ void WaveRecorderUpdate(void)
   
   /* Close file and filesystem */
   f_close (&file);
-  f_mount(0, NULL);
+  f_mount(0, 0);
   
 }
 

@@ -19,20 +19,20 @@
   ******************************************************************************
   */
 
-/* Includes ------------------------------------------------------------------*/
 #include "usbh_usr.h"
-#include "stm32f4xx_it.h"
 #include <led.h>
 
-/** @addtogroup STM32F4-Discovery_Audio_Player_Recorder
-  * @{
-  */
+#define DEBUG
 
-/* External variables --------------------------------------------------------*/
-/* Private typedef -----------------------------------------------------------*/
-/* Private defines -----------------------------------------------------------*/
-/* Private macros ------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
+#ifdef DEBUG
+#define print(str, args...) printf(""str"%s",##args,"")
+#define println(str, args...) printf("USB_USR--> "str"%s",##args,"\r\n")
+#else
+#define print(str, args...) (void)0
+#define println(str, args...) (void)0
+#endif
+
+
 __IO uint8_t Command_index = 0;
 /*  Points to the DEVICE_PROP structure of current device */
 /*  The purpose of this register is to speed up the execution */
@@ -42,8 +42,7 @@ FIL fileR;
 DIR dir;
 FILINFO fno;
 
-USBH_Usr_cb_TypeDef USR_Callbacks =
-{
+USBH_Usr_cb_TypeDef USR_Callbacks = {
   USBH_USR_Init,
   USBH_USR_DeInit,
   USBH_USR_DeviceAttached,
@@ -64,245 +63,37 @@ USBH_Usr_cb_TypeDef USR_Callbacks =
   USBH_USR_UnrecoveredError
 };
 
-extern USB_OTG_CORE_HANDLE          USB_OTG_Core;
-extern __IO uint8_t AudioPlayStart ;
-uint8_t joystick_use = 0x00;
-uint8_t lcdLineNo = 0x00;
+
 extern __IO uint8_t RepeatState ;
 extern __IO uint8_t LED_Toggle1;
-static uint8_t USBH_USR_ApplicationState = USH_USR_FS_INIT;
 extern __IO uint32_t WaveDataLength ;
 extern __IO uint16_t Time_Rec_Base;
 
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
-
-
-/**
-  * @brief  USBH_USR_Init
-  * @param  None
-  * @retval None
-  */
-void USBH_USR_Init(void)
-{
-}
-
-/**
-  * @brief  USBH_USR_DeviceAttached
-  * @param  None
-  * @retval None
-  */
-void USBH_USR_DeviceAttached(void)
-{
-  RepeatState = 0;
-  
-  LED_Toggle1 = 7;
-  /* Red LED off when device attached */
-  LED_ChangeState(LED2, LED_OFF);
-  /* Green LED on */
-  LED_ChangeState(LED0, LED_ON);
-  /* TIM Interrupts enable */
-  TIM_ITConfig(TIM4, TIM_IT_CC1, ENABLE);
-}
-
-/**
-  * @brief  USBH_USR_UnrecoveredError
-  * @param  None
-  * @retval None
-  */
-void USBH_USR_UnrecoveredError (void)
-{
-}
-
-/**
-  * @brief  USBH_DisconnectEvent
-  *         Device disconnect event
-  * @param  None
-  * @retval Staus
-  */
-void USBH_USR_DeviceDisconnected (void)
-{
-  /* Red Led on if the USB Key is removed */
-  LED_ChangeState(LED2, LED_ON);
-  /* Disable the Timer */
-  TIM_ITConfig(TIM4, TIM_IT_CC1 , DISABLE);
-
-  /* If USB key Removed when playing a wave */
-  if( (WaveDataLength!=0)&& (Command_index != 1))
-  {
-    WavePlayer_CallBack();
-    Command_index = 0;
-  } 
-  
-  /* If USB key Removed when recording a wave */
-  if(Command_index == 1)
-  {
-    WaveRecorderStop();
-    LED_ChangeState(LED1, LED_OFF);
-    Command_index = 1;
-    Time_Rec_Base = 0;
-    LED_Toggle1 = 7;
-  }
-}
-
-/**
-  * @brief  USBH_USR_ResetUSBDevice
-  * @param  None
-  * @retval None
-  */
-void USBH_USR_ResetDevice(void)
-{
-  /* callback for USB-Reset */
-}
-
-
-/**
-  * @brief  USBH_USR_DeviceSpeedDetected
-  *         Displays the message on LCD for device speed
-  * @param  Device speed:
-  * @retval None
-  */
-void USBH_USR_DeviceSpeedDetected(uint8_t DeviceSpeed)
-{
-}
-
-/**
-  * @brief  USBH_USR_Device_DescAvailable
-  * @param  device descriptor
-  * @retval None
-  */
-void USBH_USR_Device_DescAvailable(void *DeviceDesc)
-{
-  /* callback for device descriptor */
-}
-
-/**
-  * @brief  USBH_USR_DeviceAddressAssigned
-  *         USB device is successfully assigned the Address
-  * @param  None
-  * @retval None
-  */
-void USBH_USR_DeviceAddressAssigned(void)
-{
-  /* callback for device successfully assigned the Address */
-}
-
-/**
-  * @brief  USBH_USR_Conf_Desc
-  * @param  Configuration descriptor
-  * @retval None
-  */
-void USBH_USR_Configuration_DescAvailable(USBH_CfgDesc_TypeDef * cfgDesc,
-    USBH_InterfaceDesc_TypeDef *itfDesc,
-    USBH_EpDesc_TypeDef *epDesc)
-{
-  /* callback for configuration descriptor */
-}
-
-/**
-  * @brief  USBH_USR_Manufacturer_String
-  * @param  Manufacturer String
-  * @retval None
-  */
-void USBH_USR_Manufacturer_String(void *ManufacturerString)
-{
-  /* callback for  Manufacturer String */
-}
-
-/**
-  * @brief  USBH_USR_Product_String
-  * @param  Product String
-  * @retval None
-  */
-void USBH_USR_Product_String(void *ProductString)
-{
-  /* callback for Product String */
-}
-
-/**
-  * @brief  USBH_USR_SerialNum_String
-  * @param  SerialNum_String
-  * @retval None
-  */
-void USBH_USR_SerialNum_String(void *SerialNumString)
-{
-  /* callback for SerialNum_String */
-}
-
-/**
-  * @brief  EnumerationDone 
-  *         User response request is displayed to ask application jump to class
-  * @param  None
-  * @retval None
-  */
-void USBH_USR_EnumerationDone(void)
-{
-  /* 0.5 seconds delay */
-  USB_OTG_BSP_mDelay(500);
-  
-  USBH_USR_MSC_Application();
-} 
-
-/**
-  * @brief  USBH_USR_DeviceNotSupported
-  *         Device is not supported
-  * @param  None
-  * @retval None
-  */
-void USBH_USR_DeviceNotSupported(void)
-{
-}
-
-
-/**
-  * @brief  USBH_USR_UserInput
-  *         User Action for application state entry
-  * @param  None
-  * @retval USBH_USR_Status : User response for key button
-  */
-USBH_USR_Status USBH_USR_UserInput(void)
-{
-  /* callback for Key botton: set by software in this case */
-  return USBH_USR_RESP_OK;
-}
-
-/**
-  * @brief  USBH_USR_OverCurrentDetected
-  *         Over Current Detected on VBUS
-  * @param  None
-  * @retval None
-  */
-void USBH_USR_OverCurrentDetected (void)
-{
-}
+static uint8_t USBH_USR_ApplicationState = USH_USR_FS_INIT;
 
 /**
   * @brief  USBH_USR_MSC_Application
   * @param  None
   * @retval Staus
   */
-int USBH_USR_MSC_Application(void)
-{
+int USBH_USR_MSC_Application(void) {
 
-  switch (USBH_USR_ApplicationState)
-  {
+  switch (USBH_USR_ApplicationState) {
     case USH_USR_FS_INIT:
 
       /* Initialises the File System*/
-      if (f_mount( 0, &fatfs ) != FR_OK ) 
-      {
+      if (f_mount( 0, &fatfs ) != FR_OK ) {
         /* efs initialisation fails*/
+        println("Disk init failed");
         return(-1);
       }
-      
+
       /* Flash Disk is write protected */
-      if (USBH_MSC_Param.MSWriteProtect == DISK_WRITE_PROTECTED)
-      {
-        while(1)
-        {
+      if (USBH_MSC_Param.MSWriteProtect == DISK_WRITE_PROTECTED) {
+        while(1) {
           /* Red LED On */
           LED_ChangeState(LED2, LED_ON);
-
+          println("Disk write protected");
         }
       }
       /* Go to menu */
@@ -314,6 +105,7 @@ int USBH_USR_MSC_Application(void)
       /* Go to Audio menu */
       COMMAND_AudioExecuteApplication();
 
+      // FIXME Why reinit all the time???
       /* Set user initialization flag */
       USBH_USR_ApplicationState = USH_USR_FS_INIT;
       break;
@@ -329,41 +121,259 @@ int USBH_USR_MSC_Application(void)
   * @param  None
   * @retval None
   */
-void COMMAND_AudioExecuteApplication(void)
-{
+void COMMAND_AudioExecuteApplication(void) {
   /* Execute the command switch the command index */
-  switch (Command_index)
-  {
+  switch (Command_index) {
   /* Start Playing from USB Flash memory */
   case CMD_PLAY:
     if (RepeatState == 0)
       WavePlayerStart();
     break;
-    /* Start Recording in USB Flash memory */ 
+    /* Start Recording in USB Flash memory */
   case CMD_RECORD:
     RepeatState = 0;
     WaveRecorderUpdate();
-    break;  
+    break;
   default:
     break;
   }
 }
-
 /**
-  * @brief  USBH_USR_DeInit
-  *         Deint User state and associated variables
-  * @param  None
-  * @retval None
-  */
-void USBH_USR_DeInit(void)
-{
-  USBH_USR_ApplicationState = USH_USR_FS_INIT;
+* @brief  USBH_USR_Init
+*         Displays the message on LCD for host lib initialization
+* @param  None
+* @retval None
+*/
+void USBH_USR_Init(void) {
+
+  println("USB Host library started.");
 }
 
 /**
-  * @}
-  */
+* @brief  USBH_USR_DeviceAttached
+*         Displays the message on LCD on device attached
+* @param  None
+* @retval None
+*/
+void USBH_USR_DeviceAttached(void) {
+  println("Device attached");
+  RepeatState = 0;
+
+  LED_Toggle1 = 7;
+  /* Red LED off when device attached */
+  LED_ChangeState(LED2, LED_OFF);
+  /* Green LED on */
+  LED_ChangeState(LED0, LED_ON);
+  /* TIM Interrupts enable */
+  TIM_ITConfig(TIM4, TIM_IT_CC1, ENABLE);
+}
+
+/**
+* @brief  USBH_USR_UnrecoveredError
+* @param  None
+* @retval None
+*/
+void USBH_USR_UnrecoveredError (void) {
+  println("Unrecovered error");
+}
+
+/**
+* @brief  USBH_DisconnectEvent
+*         Device disconnect event
+* @param  None
+* @retval Staus
+*/
+void USBH_USR_DeviceDisconnected (void) {
+  println("Device disconnected");
+  /* Red Led on if the USB Key is removed */
+  LED_ChangeState(LED2, LED_ON);
+  /* Disable the Timer */
+  TIM_ITConfig(TIM4, TIM_IT_CC1 , DISABLE);
+
+  /* If USB key Removed when playing a wave */
+  if( (WaveDataLength!=0)&& (Command_index != 1))
+  {
+    WavePlayer_CallBack();
+    Command_index = 0;
+  }
+
+  /* If USB key Removed when recording a wave */
+  if(Command_index == 1)
+  {
+    WaveRecorderStop();
+    LED_ChangeState(LED1, LED_OFF);
+    Command_index = 1;
+    Time_Rec_Base = 0;
+    LED_Toggle1 = 7;
+  }
+}
+/**
+* @brief  USBH_USR_ResetUSBDevice
+* @param  None
+* @retval None
+*/
+void USBH_USR_ResetDevice(void) {
+  println("Device reset");
+}
+
+/**
+* @brief  USBH_USR_DeviceSpeedDetected
+*         Displays the message on LCD for device speed
+* @param  Device speed
+* @retval None
+*/
+void USBH_USR_DeviceSpeedDetected(uint8_t DeviceSpeed) {
+  if(DeviceSpeed == HPRT0_PRTSPD_HIGH_SPEED) {
+    println("High speed device");
+  } else if(DeviceSpeed == HPRT0_PRTSPD_FULL_SPEED) {
+    println("Full speed device");
+  } else if(DeviceSpeed == HPRT0_PRTSPD_LOW_SPEED) {
+    println("Low speed device");
+  } else {
+    println("Error in speed device");
+  }
+}
+
+/**
+* @brief  USBH_USR_Device_DescAvailable
+*         Displays the message on LCD for device descriptor
+* @param  device descriptor
+* @retval None
+*/
+void USBH_USR_Device_DescAvailable(void *DeviceDesc) {
+
+  USBH_DevDesc_TypeDef *hs;
+  hs = DeviceDesc;
+
+  println("VID : %04xh" , (unsigned int)((*hs).idVendor));
+  println("PID : %04xh" , (unsigned int)((*hs).idProduct));
+}
+
+/**
+* @brief  USBH_USR_DeviceAddressAssigned
+*         USB device is successfully assigned the Address
+* @param  None
+* @retval None
+*/
+void USBH_USR_DeviceAddressAssigned(void) {
+  println("Device addressed");
+}
 
 
+/**
+* @brief  USBH_USR_Conf_Desc
+*         Displays the message on LCD for configuration descriptor
+* @param  Configuration descriptor
+* @retval None
+*/
+void USBH_USR_Configuration_DescAvailable(USBH_CfgDesc_TypeDef * cfgDesc,
+                                          USBH_InterfaceDesc_TypeDef *itfDesc,
+                                          USBH_EpDesc_TypeDef *epDesc) {
+  USBH_InterfaceDesc_TypeDef *id;
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+  id = itfDesc;
+
+  if((*id).bInterfaceClass  == 0x08) {
+    println("MSC device");
+  } else if((*id).bInterfaceClass  == 0x03) {
+    println("HID device");
+  }
+}
+
+/**
+* @brief  USBH_USR_Manufacturer_String
+*         Displays the message on LCD for Manufacturer String
+* @param  Manufacturer String
+* @retval None
+*/
+void USBH_USR_Manufacturer_String(void *ManufacturerString) {
+  println("Manufacturer : %s", (char *)ManufacturerString);
+}
+
+/**
+* @brief  USBH_USR_Product_String
+*         Displays the message on LCD for Product String
+* @param  Product String
+* @retval None
+*/
+void USBH_USR_Product_String(void *ProductString) {
+  println("Product : %s", (char *)ProductString);
+}
+
+/**
+* @brief  USBH_USR_SerialNum_String
+*         Displays the message on LCD for SerialNum_String
+* @param  SerialNum_String
+* @retval None
+*/
+void USBH_USR_SerialNum_String(void *SerialNumString) {
+  println( "Serial Number : %s", (char *)SerialNumString);
+}
+
+/**
+* @brief  EnumerationDone
+*         User response request is displayed to ask application jump to class
+* @param  None
+* @retval None
+*/
+void USBH_USR_EnumerationDone(void) {
+  println("Enumeration done");
+  /* 0.5 seconds delay */
+  USB_OTG_BSP_mDelay(500);
+
+  USBH_USR_MSC_Application();
+
+}
+
+/**
+* @brief  USBH_USR_DeviceNotSupported
+*         Device is not supported
+* @param  None
+* @retval None
+*/
+void USBH_USR_DeviceNotSupported(void) {
+  println ("Device not supported");
+}
+
+
+/**
+* @brief  USBH_USR_UserInput
+*         User Action for application state entry
+* @param  None
+* @retval USBH_USR_Status : User response for key button
+*/
+USBH_USR_Status USBH_USR_UserInput(void) {
+  USBH_USR_Status usbh_usr_status;
+
+  usbh_usr_status = USBH_USR_NO_RESP;
+
+  /*Key B3 is in polling mode to detect user action */
+//  if(STM_EVAL_PBGetState(Button_KEY) == RESET)
+//  {
+
+    usbh_usr_status = USBH_USR_RESP_OK;
+
+//  }
+  return usbh_usr_status;
+}
+
+/**
+* @brief  USBH_USR_OverCurrentDetected
+*         Over Current Detected on VBUS
+* @param  None
+* @retval Staus
+*/
+void USBH_USR_OverCurrentDetected (void) {
+  println("Overcurrent detected.");
+}
+
+/**
+* @brief  USBH_USR_DeInit
+*         Deint User state and associated variables
+* @param  None
+* @retval None
+*/
+void USBH_USR_DeInit(void) {
+  println("Deinit");
+  USBH_USR_ApplicationState = USH_USR_FS_INIT;
+}

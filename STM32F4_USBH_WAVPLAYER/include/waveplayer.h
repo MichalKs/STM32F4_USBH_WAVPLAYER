@@ -23,10 +23,7 @@
 #ifndef __WAVE_PLAYER_H
 #define __WAVE_PLAYER_H
 
-/* Includes ------------------------------------------------------------------*/
-#include "main.h"
 
-/* Exported types ------------------------------------------------------------*/
 typedef enum
 {
   LittleEndian,

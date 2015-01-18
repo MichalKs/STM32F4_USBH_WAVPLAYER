@@ -18,39 +18,56 @@
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   */ 
 
-/* Includes ------------------------------------------------------------------*/
-#include "main.h"
+#include "waverecorder.h"
+#include "usb_hcd_int.h"
+#include "usbh_usr.h"
+#include "usbh_core.h"
+#include "usbh_msc_core.h"
+#include "pdm_filter.h"
+#include "stm32f4_discovery.h"
+#include "stm32f4_discovery_audio_codec.h"
+#include "stm32f4_discovery_lis302dl.h"
+#include "waveplayer.h"
 
-/** @addtogroup STM32F4-Discovery_Audio_Player_Recorder
-  * @{
-  */ 
-
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
 #if defined MEDIA_USB_KEY
  USB_OTG_CORE_HANDLE          USB_OTG_Core;
  USBH_HOST                    USB_Host;
 #endif
 
-RCC_ClocksTypeDef RCC_Clocks;
 __IO uint8_t RepeatState = 0;
 __IO uint16_t CCR_Val = 16826;
 extern __IO uint8_t LED_Toggle1;
 
-/* Private function prototypes -----------------------------------------------*/
 static void TIM_LED_Config(void);
-/* Private functions ---------------------------------------------------------*/
 
 #include <led.h>
+#include <comm.h>
+#include <timers.h>
+
+#define SYSTICK_FREQ 1000 ///< Frequency of the SysTick set at 1kHz.
+#define COMM_BAUD_RATE 115200UL ///< Baud rate for communication with PC
+
+void softTimerCallback(void);
+
+#define DEBUG
+
+#ifdef DEBUG
+#define print(str, args...) printf(""str"%s",##args,"")
+#define println(str, args...) printf("MAIN--> "str"%s",##args,"\r\n")
+#else
+#define print(str, args...) (void)0
+#define println(str, args...) (void)0
+#endif
 
 /**
   * @brief  Main program.
   * @param  None
   * @retval None
 */
-int main(void)
-{ 
+int main(void) {
+
+  COMM_Init(COMM_BAUD_RATE);
+  println("Starting program**************");
   /* Initialize LEDS */
   LED_Init(LED0);
   LED_Init(LED1);
@@ -59,10 +76,16 @@ int main(void)
  
   /* Green Led On: start of application */
   LED_ChangeState(LED0, LED_ON);
-       
+
+  TIMER_Init(SYSTICK_FREQ); // Initialize timer
+
+  // Add a soft timer with callback running every 100ms
+  int8_t timerID = TIMER_AddSoftTimer(1000, softTimerCallback);
+  TIMER_StartSoftTimer(timerID); // start the timer
+
   /* SysTick end of count event each 10ms */
-  RCC_GetClocksFreq(&RCC_Clocks);
-  SysTick_Config(RCC_Clocks.HCLK_Frequency / 100);
+//  RCC_GetClocksFreq(&RCC_Clocks);
+//  SysTick_Config(RCC_Clocks.HCLK_Frequency / 100);
   
   /* Configure TIM4 Peripheral to manage LEDs lighting */
   TIM_LED_Config();
@@ -88,10 +111,20 @@ int main(void)
   {
     /* Host Task handler */
     USBH_Process(&USB_OTG_Core, &USB_Host);
+    TIMER_SoftTimersUpdate();
   }
   
 #endif
   
+}
+
+void softTimerCallback(void) {
+
+  println("LED toggle val = %u", LED_Toggle1);
+
+
+
+
 }
 
 /**
@@ -123,7 +156,7 @@ static void TIM_LED_Config(void)
   prescalervalue = (uint16_t) ((SystemCoreClock ) / 550000) - 1;
   
   /* Time base configuration */
-  TIM_TimeBaseStructure.TIM_Period = 65535;
+  TIM_TimeBaseStructure.TIM_Period = 65535; // about 100 ms
   TIM_TimeBaseStructure.TIM_Prescaler = prescalervalue;
   TIM_TimeBaseStructure.TIM_ClockDivision = 0;
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;

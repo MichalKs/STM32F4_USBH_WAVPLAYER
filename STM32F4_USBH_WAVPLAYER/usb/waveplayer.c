@@ -20,12 +20,21 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
 #include <led.h>
+#include <ff.h>
+#include <usb_core.h>
+#include "stm32f4_discovery_lis302dl.h"
+#include "stm32f4_discovery_audio_codec.h"
+#include <waveplayer.h>
+
+/* Uncomment this define to disable repeat option */
+//#define PLAY_REPEAT_OFF
+
 /** @addtogroup STM32F4-Discovery_Audio_Player_Recorder
 * @{
 */ 
-
+  #define REC_WAVE_NAME "0:rec.wav"
+#define WAVE_NAME "0:audio.wav"
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #if defined MEDIA_IntFLASH
@@ -51,12 +60,8 @@ extern uint16_t AUDIO_SAMPLE[];
  uint16_t buffer1[_MAX_SS] ={0x00};
  uint16_t buffer2[_MAX_SS] ={0x00};
  uint8_t buffer_switch = 1;
- extern FATFS fatfs;
- extern FIL file;
  extern FIL fileR;
  extern DIR dir;
- extern FILINFO fno;
- extern uint16_t *CurrentPos;
  extern USB_OTG_CORE_HANDLE USB_OTG_Core;
  extern uint8_t WaveRecStatus;
 #endif
@@ -71,7 +76,6 @@ extern __IO uint8_t RepeatState ;
 extern __IO uint8_t LED_Toggle1;
 extern __IO uint8_t PauseResumeStatus ;
 extern uint32_t AudioRemSize; 
-static __IO uint32_t TimingDelay;
 
 /* Private function prototypes -----------------------------------------------*/
 static void Mems_Config(void);
@@ -420,30 +424,6 @@ uint32_t Codec_TIMEOUT_UserCallback(void)
 #endif /* USE_DEFAULT_TIMEOUT_CALLBACK */
 /*----------------------------------------------------------------------------*/
 
-/**
-  * @brief  Inserts a delay time.
-  * @param  nTime: specifies the delay time length, in 10 ms.
-  * @retval None
-  */
-void Delay(__IO uint32_t nTime)
-{
-  TimingDelay = nTime;
-  
-  while(TimingDelay != 0);
-}
-
-/**
-  * @brief  Decrements the TimingDelay variable.
-  * @param  None
-  * @retval None
-  */
-void TimingDelay_Decrement(void)
-{
-  if (TimingDelay != 0x00)
-  { 
-    TimingDelay--;
-  }
-}
 
 #if defined MEDIA_USB_KEY
 
@@ -464,7 +444,7 @@ void WavePlayerStart(void)
     while(1)
     {
       LED_Toggle(LED2);
-      Delay(10);
+      TIMER_Delay(100);
     }    
   }
   else
@@ -501,7 +481,7 @@ void WavePlayerStart(void)
         while(1)
         {
           LED_Toggle(LED2);
-          Delay(10);
+          TIMER_Delay(100);
         }
       }
       /* Play the wave */
@@ -535,7 +515,7 @@ void WavePlayer_CallBack(void)
   
   /* TIM Interrupts disable */
   TIM_ITConfig(TIM4, TIM_IT_CC1, DISABLE);
-  f_mount(0, NULL);
+  f_mount(0, 0);
 } 
 
 /**
@@ -781,27 +761,6 @@ static void EXTILine_Config(void)
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
 }
-
-#ifdef  USE_FULL_ASSERT
-
-/**
-* @brief  Reports the name of the source file and the source line number
-*   where the assert_param error has occurred.
-* @param  file: pointer to the source file name
-* @param  line: assert_param error line source number
-* @retval None
-*/
-void assert_failed(uint8_t* file, uint32_t line)
-{ 
-  /* User can add his own implementation to report the file name and line number,
-  ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-  
-  /* Infinite loop */
-  while (1)
-  {
-  }
-}
-#endif
 
 /**
 * @}
