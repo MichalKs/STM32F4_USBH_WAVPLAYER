@@ -54,7 +54,6 @@ extern volatile uint8_t LED_Toggle1;
 
 static void TIM_LED_Config(void);
 
-
 /**
  * @brief Main
  * @return None
@@ -85,14 +84,10 @@ int main(void) {
   uint8_t buf[255]; // buffer for receiving commands from PC
   uint8_t len;      // length of command
 
-  // test another way of measuring time delays
-  uint32_t softTimer = TIMER_GetTime(); // get start time for delay
-
-
-  /* Configure TIM4 Peripheral to manage LEDs lighting */
+  // Configure TIM4 Peripheral to manage LEDs lighting
   TIM_LED_Config();
 
-  /* Initialize the repeat status */
+  // Initialize the repeat status
   RepeatState = 0;
   LED_Toggle1 = 7;
 
@@ -103,22 +98,17 @@ int main(void) {
 
 #elif defined MEDIA_USB_KEY
 
-  /* Initialize User Button */
+  // Initialize User Button
   STM_EVAL_PBInit();
 
-  /* Init Host Library */
-  USBH_Init(&USB_OTG_Core, USB_OTG_FS_CORE_ID, &USB_Host, &USBH_MSC_cb, &USR_Callbacks);
+  // Init Host Library
+  USBH_Init(&USB_OTG_Core, USB_OTG_FS_CORE_ID, &USB_Host,
+      &USBH_MSC_cb, &USR_Callbacks);
 
 
   while (1) {
 
     USBH_Process(&USB_OTG_Core, &USB_Host);
-
-    // test delay method
-    if (TIMER_DelayTimer(1000, softTimer)) {
-      LED_Toggle(LED3);
-      softTimer = TIMER_GetTime(); // get start time for delay
-    }
 
     // check for new frames from PC
     if (!COMM_GetFrame(buf, &len)) {
@@ -152,29 +142,8 @@ int main(void) {
  */
 void softTimerCallback(void) {
 
-//  static uint8_t counter;
-//
-//  switch (counter % 3) {
-//
-//  case 0:
-//    LED_ChangeState(LED1, LED_OFF);
-//    LED_ChangeState(LED2, LED_OFF);
-//    break;
-//
-//  case 1:
-//    LED_ChangeState(LED1, LED_ON);
-//    LED_ChangeState(LED2, LED_OFF);
-//    break;
-//
-//  case 2:
-//    LED_ChangeState(LED1, LED_OFF);
-//    LED_ChangeState(LED2, LED_ON);
-//    break;
-//
-//  }
-
 //  println("Test string sent from STM32F4!!!"); // Print test string
-//  counter++;
+
 }
 
 /**

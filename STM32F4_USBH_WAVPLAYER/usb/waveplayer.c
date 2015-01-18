@@ -439,7 +439,7 @@ void WavePlayerStart(void)
   buffer_switch = 1;
   
   /* Get the read out protection status */
-  if (f_opendir(&dir, path)!= FR_OK) {
+  if (f_opendir(&dir, path)!= FR_OK) { // open root
     while(1) {
       LED_Toggle(LED2);
       TIMER_Delay(100);
@@ -447,19 +447,20 @@ void WavePlayerStart(void)
   }
   else {
     if (WaveRecStatus == 1) {
-      WaveFileName = REC_WAVE_NAME;
+      WaveFileName = REC_WAVE_NAME; // recorded wave
     }
     else {
       WaveFileName = WAVE_NAME; 
     }
     /* Open the wave file to be played */
-    if (f_open(&fileR, WaveFileName , FA_READ) != FR_OK) {
+    if (f_open(&fileR, WaveFileName, FA_READ) != FR_OK) {
       LED_ChangeState(LED0, LED_ON);
-      Command_index = 1;
+      Command_index = 1; // start recording if no wave
     }
     else
     {    
       /* Read data(_MAX_SS byte) from the selected file */
+      // read first sector
       f_read (&fileR, buffer1, _MAX_SS, &BytesRead);
       
       WaveFileStatus = WavePlayer_WaveParsing(&wavelen);
