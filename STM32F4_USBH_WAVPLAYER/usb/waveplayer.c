@@ -439,27 +439,21 @@ void WavePlayerStart(void)
   buffer_switch = 1;
   
   /* Get the read out protection status */
-  if (f_opendir(&dir, path)!= FR_OK)
-  {
-    while(1)
-    {
+  if (f_opendir(&dir, path)!= FR_OK) {
+    while(1) {
       LED_Toggle(LED2);
       TIMER_Delay(100);
     }    
   }
-  else
-  {
-    if (WaveRecStatus == 1)
-    {
+  else {
+    if (WaveRecStatus == 1) {
       WaveFileName = REC_WAVE_NAME;
     }
-    else
-    {
+    else {
       WaveFileName = WAVE_NAME; 
     }
     /* Open the wave file to be played */
-    if (f_open(&fileR, WaveFileName , FA_READ) != FR_OK)
-    {
+    if (f_open(&fileR, WaveFileName , FA_READ) != FR_OK) {
       LED_ChangeState(LED0, LED_ON);
       Command_index = 1;
     }

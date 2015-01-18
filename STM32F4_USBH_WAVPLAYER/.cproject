@@ -173,7 +173,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="app/main.c|fat_fs/src/option/syncobj.c|fat_fs/src/option/ccsbcs.c|fat_fs/src/diskio.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="fat_fs/src/option/syncobj.c|fat_fs/src/option/ccsbcs.c|fat_fs/src/diskio.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

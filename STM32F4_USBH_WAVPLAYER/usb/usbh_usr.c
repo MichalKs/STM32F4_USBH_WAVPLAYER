@@ -318,11 +318,6 @@ void USBH_USR_SerialNum_String(void *SerialNumString) {
 */
 void USBH_USR_EnumerationDone(void) {
   println("Enumeration done");
-  /* 0.5 seconds delay */
-  USB_OTG_BSP_mDelay(500);
-
-  USBH_USR_MSC_Application();
-
 }
 
 /**
@@ -334,7 +329,6 @@ void USBH_USR_EnumerationDone(void) {
 void USBH_USR_DeviceNotSupported(void) {
   println ("Device not supported");
 }
-
 
 /**
 * @brief  USBH_USR_UserInput

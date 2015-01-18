@@ -30,9 +30,9 @@
 * @{
 */ 
 
-#define TIME_REC                30000 /* Recording time in millisecond(Systick Time Base*TIME_REC= 10ms*3000)
+#define TIME_REC                20000 /* Recording time in millisecond(Systick Time Base*TIME_REC= 10ms*3000)
                                          (default: 30s) */
-  #define REC_WAVE_NAME "0:rec.wav"
+#define REC_WAVE_NAME "0:rec.wav"
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* SPI Configuration defines */
@@ -51,7 +51,7 @@
 #define AUDIO_REC_SPI_IRQHANDLER          SPI2_IRQHandler
 
 /* Audio recording frequency in Hz */
-#define REC_FREQ                          8000  
+#define REC_FREQ                8000
 
 /* PDM buffer input size */
 #define INTERNAL_BUFF_SIZE      64
@@ -60,7 +60,7 @@
 #define PCM_OUT_SIZE            16
 
 
-  #define RAM_BUFFER_SIZE         1500  /* 3Kbytes (1500 x 16 bit) as a RAM buffer size.
+#define RAM_BUFFER_SIZE         1500  /* 3Kbytes (1500 x 16 bit) as a RAM buffer size.
                                            More the size is higher, the recorded quality is better */
 
 /* Private macro -------------------------------------------------------------*/
@@ -545,28 +545,6 @@ static void WaveRecorder_NVIC_Init(void)
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
 }
-
-
-#ifdef  USE_FULL_ASSERT
-
-/**
-* @brief  Reports the name of the source file and the source line number
-*   where the assert_param error has occurred.
-* @param  file: pointer to the source file name
-* @param  line: assert_param error line source number
-* @retval None
-*/
-void assert_failed(uint8_t* file, uint32_t line)
-{ 
-  /* User can add his own implementation to report the file name and line number,
-  ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-  
-  /* Infinite loop */
-  while (1)
-  {
-  }
-}
-#endif
 
 /**
 * @}
